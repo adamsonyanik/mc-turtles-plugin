@@ -1,0 +1,4 @@
+name: Turtles
+version: 1.0
+main: io.github.adamson.MCTurtles
+api-version: 1.19
