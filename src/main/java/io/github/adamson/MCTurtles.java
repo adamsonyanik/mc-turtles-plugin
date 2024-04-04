@@ -2,6 +2,9 @@ package io.github.adamson;
 
 import io.github.adamson.recipes.MiningTurtleRecipe;
 import io.github.adamson.recipes.TurtleRecipe;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MCTurtles extends JavaPlugin {
@@ -18,6 +21,18 @@ public class MCTurtles extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TurtlePlaceListener(), this);
         getServer().getPluginManager().registerEvents(new TurtleDestroyListener(), this);
         getServer().getPluginManager().registerEvents(new TurtleClickListener(), this);
+
+        for (World w : Bukkit.getWorlds())
+            for (Chunk c : w.getLoadedChunks())
+                ChunkLoadListener.loadTurtlesFromChunk(c);
+
         getServer().getPluginManager().registerEvents(new ChunkLoadListener(), this);
+    }
+
+    @Override
+    public void onDisable() {
+        for (World w : Bukkit.getWorlds())
+            for (Chunk c : w.getLoadedChunks())
+                ChunkLoadListener.unloadTurtlesFromChunk(c);
     }
 }

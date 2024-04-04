@@ -15,13 +15,11 @@ public class TurtleClickListener implements Listener {
             return;
 
         Block clickedBlock = event.getClickedBlock();
-        TurtleKind turtleKind = TurtleKind.get(clickedBlock);
-        if (turtleKind == null)
+        Turtle turtle = TurtleFactory.getTurtle(clickedBlock);
+        if (turtle == null)
             return;
 
-        //event.setCancelled(true);
         event.setUseItemInHand(Event.Result.DENY);
-
-        TurtleFactory.createTurtle(clickedBlock).openInventory(event.getPlayer());
+        turtle.openInventory(event.getPlayer());
     }
 }
