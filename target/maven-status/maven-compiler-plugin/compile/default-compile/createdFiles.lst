@@ -1,12 +1,10 @@
-io\github\adamson\MCTurtles.class
-io\github\adamson\ChunkLoadListener.class
-io\github\adamson\recipes\TurtleRecipe.class
-io\github\adamson\TurtlePlaceListener.class
-io\github\adamson\TurtleFactory.class
-io\github\adamson\Utils.class
 io\github\adamson\CustomHeads.class
+io\github\adamson\MCTurtles.class
 io\github\adamson\Turtle.class
-io\github\adamson\TurtleDestroyListener.class
+io\github\adamson\recipes\TurtleRecipe.class
 io\github\adamson\recipes\MiningTurtleRecipe.class
+io\github\adamson\TurtleLoadListener.class
+io\github\adamson\TurtlePlaceListener.class
 io\github\adamson\TurtleClickListener.class
 io\github\adamson\TurtleKind.class
+io\github\adamson\Utils.class
