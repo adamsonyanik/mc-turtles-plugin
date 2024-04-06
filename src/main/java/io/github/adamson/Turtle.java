@@ -40,6 +40,10 @@ public class Turtle {
         return loadedTurtles.get(slime.getUniqueId());
     }
 
+    public static void load(Slime slime) {
+        new Turtle(slime);
+    }
+
     public static void unloadTurtles() {
         for (Turtle t : loadedTurtles.values())
             t.unload();
@@ -50,7 +54,7 @@ public class Turtle {
 
     private final Inventory inventory;
 
-    public Turtle(Slime entity) {
+    protected Turtle(Slime entity) {
         this(entity, getAttachedArmorStand(entity));
     }
 
@@ -64,7 +68,7 @@ public class Turtle {
         return null;
     }
 
-    public Turtle(Slime entity, ArmorStand attachedArmorStand) {
+    protected Turtle(Slime entity, ArmorStand attachedArmorStand) {
         loadedTurtles.put(entity.getUniqueId(), this);
         System.out.println("loaded turtles: " + loadedTurtles.size());
 

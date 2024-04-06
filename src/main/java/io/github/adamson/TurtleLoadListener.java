@@ -32,7 +32,7 @@ public class TurtleLoadListener implements Listener {
             if (e.getType() != EntityType.SLIME) continue;
             if (!e.getPersistentDataContainer().has(attachedArmorStandNamespaceKey)) continue;
 
-            new Turtle((Slime) e);
+            Turtle.load((Slime) e);
         }
     }
 
