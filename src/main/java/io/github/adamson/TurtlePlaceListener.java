@@ -1,10 +1,8 @@
 package io.github.adamson;
 
-import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Skull;
+import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.Rotatable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,30 +13,32 @@ public class TurtlePlaceListener implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
-        TurtleKind kind = TurtleKind.get(event.getItemInHand());
-        if (kind == null)
+        if (event.getItemInHand().getType() != Material.PLAYER_HEAD || !((SkullMeta) event.getItemInHand().getItemMeta()).hasOwner())
             return;
 
-        Block block = event.getBlock();
-        Material originalMaterial = block.getType();
+        String name = ((SkullMeta) event.getItemInHand().getItemMeta()).getOwnerProfile().getName();
 
-        block.setType(Material.PLAYER_HEAD);
+        if (!name.startsWith("mc-turtles-plugin-"))
+            return;
 
-        Skull skull = (Skull) block.getState();
-        skull.setOwnerProfile(((SkullMeta) event.getItemInHand().getItemMeta()).getOwnerProfile());
+        Location location = event.getBlock().getLocation();
+        if (event.getBlock().getType() == Material.PLAYER_HEAD)
+            switch (((Rotatable) event.getBlock().getBlockData()).getRotation()) {
+                case NORTH_NORTH_WEST, NORTH, NORTH_NORTH_EAST, NORTH_EAST -> location.setYaw(0);
+                case EAST_NORTH_EAST, EAST, EAST_SOUTH_EAST, SOUTH_EAST -> location.setYaw(90);
+                case SOUTH_SOUTH_EAST, SOUTH, SOUTH_SOUTH_WEST, SOUTH_WEST -> location.setYaw(180);
+                case WEST_SOUTH_WEST, WEST, WEST_NORTH_WEST, NORTH_WEST -> location.setYaw(270);
+            }
+        else
+            switch (((Directional) event.getBlock().getBlockData()).getFacing()) {
+                case SOUTH -> location.setYaw(0);
+                case WEST -> location.setYaw(90);
+                case NORTH -> location.setYaw(180);
+                case EAST -> location.setYaw(270);
+            }
 
-        Rotatable skullBlockData = (Rotatable) skull.getBlockData();
-        skullBlockData.setRotation(BlockFace.WEST);
-        skull.setBlockData(skullBlockData);
+        event.getBlock().setType(Material.AIR);
 
-        skull.update();
-
-        if (originalMaterial == Material.PLAYER_WALL_HEAD) {
-            block.setType(Material.AIR);
-            Bukkit.getScheduler().runTaskLater(MCTurtles.plugin, () -> {
-                block.setType(Material.PLAYER_HEAD);
-                skull.update();
-            }, 2);
-        }
+        Turtle.spawn(location);
     }
 }

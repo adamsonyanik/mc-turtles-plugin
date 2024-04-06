@@ -18,7 +18,7 @@ public class Utils {
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         meta.setDisplayName(ChatColor.WHITE + name);
 
-        PlayerProfile customHeadPlayerProfile = Bukkit.createPlayerProfile(UUID.randomUUID(), "mc-turtles-plugin-" + id);
+        PlayerProfile customHeadPlayerProfile = Bukkit.createPlayerProfile(UUID.fromString("18650059-c6e4-4684-8461-622ac3a006e7"), "mc-turtles-plugin-" + id);
         customHeadPlayerProfile.getTextures().setSkin(texture);
         customHeadPlayerProfile.update();
 

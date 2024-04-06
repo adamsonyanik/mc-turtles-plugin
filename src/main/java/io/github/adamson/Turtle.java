@@ -1,39 +1,54 @@
 package io.github.adamson;
 
 import org.bukkit.*;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitTask;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Turtle {
 
-    private static final Map<UUID, Turtle> loadedTurtles = new HashMap<>();
+    private static final Map<UUID, Turtle> loadedTurtles = new ConcurrentHashMap<>();
+
+    private static ItemStack skull;
+
+    public static ItemStack getSkull() {
+        if (skull == null) {
+            skull = Utils.createSkull("Turtle", "turtle", CustomHeads.TURTLE);
+        }
+        return skull.clone();
+    }
 
     public static Turtle spawn(Location location) {
-        ArmorStand as = location.getWorld().spawn(location, ArmorStand.class);
+        location = location.add(0.5, -1.25, 0.5);
+        ArmorStand armorStand = location.getWorld().spawn(location, ArmorStand.class, as -> {
+            as.setBasePlate(false);
+            as.setVisible(false);
+            as.setMarker(true);
+            as.setCanPickupItems(false);
+            as.setGravity(false);
+            as.getEquipment().setHelmet(getSkull());
+        });
 
-        as.setBasePlate(false);
-        as.setVisible(false);
-        as.setMarker(true);
-        as.setCanPickupItems(false);
-        as.setGravity(false);
-        as.getEquipment().setHelmet(new ItemStack(Material.PLAYER_HEAD));
+        Slime slime = location.getWorld().spawn(location.add(0, 1.48, 0), Slime.class, s -> {
+            s.setAI(false);
+            s.setSize(1);
+            s.setInvisible(false);
+            s.setInvulnerable(false);
+            s.getPersistentDataContainer().set(new NamespacedKey(MCTurtles.plugin, "attached-armorstand"), PersistentDataType.STRING, armorStand.getUniqueId().toString());
+            s.setRemoveWhenFarAway(false);
+        });
 
-        Slime slime = (Slime) location.getWorld().spawnEntity(location.add(0, 1.48, 0), EntityType.SLIME, false);
-        slime.setAI(false);
-        slime.setSize(1);
-        slime.setInvisible(false);
-        slime.setInvulnerable(false);
-        slime.getPersistentDataContainer().set(new NamespacedKey(MCTurtles.plugin, "attached-armorstand"), PersistentDataType.STRING, as.getUniqueId().toString());
-        slime.setRemoveWhenFarAway(false);
-
-        return new Turtle(slime, as);
+        return new Turtle(slime, armorStand);
     }
 
     public static Turtle get(Entity slime) {
@@ -53,6 +68,8 @@ public class Turtle {
     public ArmorStand attachedArmorStand;
 
     private final Inventory inventory;
+
+    public BukkitTask tickTask;
 
     protected Turtle(Slime entity) {
         this(entity, getAttachedArmorStand(entity));
@@ -80,6 +97,22 @@ public class Turtle {
         ItemMeta meta = item.getItemMeta();
         item.setItemMeta(meta);
         this.inventory.setItem(0, item);
+
+        this.startExecution();
+    }
+
+    public void startExecution() {
+        this.stopExecution();
+        this.tickTask = Bukkit.getScheduler().runTaskTimer(MCTurtles.plugin, this::tick, 0, 1);
+    }
+
+    public void stopExecution() {
+        if (this.tickTask != null)
+            this.tickTask.cancel();
+    }
+
+    protected void tick() {
+        System.out.println("tick");
     }
 
     void openInventory(Player player) {
@@ -89,26 +122,10 @@ public class Turtle {
     public void destroy() {
         unload();
 
-        /*TurtleKind kind = TurtleKind.get(block);
-        if (kind == null)
-            return;
-
-        PlayerProfile ownerProfile = ((Skull) block.getState()).getOwnerProfile();
-
-        Location location = block.getLocation();
-        World world = location.getWorld();
-
-        block.setType(Material.AIR);
-
-        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
-        meta.setDisplayName(ChatColor.WHITE + kind.displayName);
-
-        meta.setOwnerProfile(ownerProfile);
-        head.setItemMeta(meta);
-
-        world.dropItem(location.add(0.5, 0, 0.5), head);*/
+        slime.getWorld().dropItem(slime.getLocation(), getSkull());
+        for (ItemStack itemStack : inventory.getContents())
+            if (itemStack != null)
+                slime.getWorld().dropItem(slime.getLocation(), itemStack);
 
         slime.getWorld().playSound(slime.getLocation(), Sound.BLOCK_COPPER_BREAK, 0.5f, 1);
         slime.getWorld().spawnParticle(Particle.ITEM_CRACK, slime.getLocation(), 20, 0.2, 0.2, 0.2, 0.1, new ItemStack(Material.POLISHED_TUFF));
@@ -117,6 +134,7 @@ public class Turtle {
     }
 
     public void unload() {
+        this.stopExecution();
         loadedTurtles.remove(this.slime.getUniqueId());
         System.out.println("loaded turtles: " + loadedTurtles.size());
     }
