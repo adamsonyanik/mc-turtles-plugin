@@ -11,5 +11,4 @@ io\github\adamson\recipes\MiningTurtleRecipe.class
 io\github\adamson\TurtleLoadListener.class
 io\github\adamson\TurtlePlaceListener$1.class
 io\github\adamson\TurtleClickListener.class
-io\github\adamson\TurtleKind.class
 io\github\adamson\stackmachine\OP.class

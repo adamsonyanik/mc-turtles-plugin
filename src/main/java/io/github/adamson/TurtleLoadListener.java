@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
+import org.bukkit.event.world.WorldSaveEvent;
 
 import java.util.Collection;
 
@@ -52,5 +53,8 @@ public class TurtleLoadListener implements Listener {
         }
     }
 
-
+    @EventHandler
+    public void onWorldSave(WorldSaveEvent event) {
+        Turtle.saveTurtles();
+    }
 }

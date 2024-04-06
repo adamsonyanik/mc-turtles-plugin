@@ -20,7 +20,7 @@ public class TurtleClickListener implements Listener {
         if (!isTurtle(event.getRightClicked()))
             return;
 
-        Turtle.get(event.getRightClicked()).openInventory(event.getPlayer());
+        event.getPlayer().openInventory(Turtle.get(event.getRightClicked()).getInventory());
     }
 
     @EventHandler
